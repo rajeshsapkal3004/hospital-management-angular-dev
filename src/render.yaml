@@ -1,7 +1,0 @@
-staticSites:
-  - name: hospital-management-system
-    routes:
-      - type: header
-        status: 200
-        path: /*
-        rewrite: /index.html

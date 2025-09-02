@@ -1,0 +1,6 @@
+staticSites:
+  - name: hospital-management-angular-dev
+    routes:
+      - type: rewrite
+        path: /*
+        destination: /index.html
