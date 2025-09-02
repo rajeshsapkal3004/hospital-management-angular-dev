@@ -1,0 +1,201 @@
+<div class="medical-records-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon aria-hidden="false">description</mat-icon>
+        Medical Records
+      </h1>
+      <p class="page-subtitle">Your complete medical history and health records</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-container">
+        <div class="filters-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search Records</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" 
+                   placeholder="Search by diagnosis, doctor, or symptoms">
+            <mat-icon matPrefix aria-hidden="false">search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Visit Type</mat-label>
+            <mat-select [(ngModel)]="selectedVisitType" (ngModelChange)="applyFilters()">
+              <mat-option *ngFor="let type of visitTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>From Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" 
+                   [(ngModel)]="selectedDateRange.start" 
+                   (ngModelChange)="applyFilters()">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>To Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" 
+                   [(ngModel)]="selectedDateRange.end" 
+                   (ngModelChange)="applyFilters()">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+
+          <button mat-button color="accent" (click)="clearFilters()">
+            <mat-icon aria-hidden="false">clear</mat-icon>
+            Clear
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading medical records...</p>
+  </div>
+
+  <!-- Records List -->
+  <div class="records-container" *ngIf="!isLoading">
+    <div class="records-list" *ngIf="filteredRecords.length > 0; else noRecords">
+      <mat-card 
+        *ngFor="let record of filteredRecords" 
+        class="record-card"
+        [routerLink]="['/patient/medical-records', record.id]">
+        
+        <mat-card-header class="record-header">
+          <div class="record-date-badge">
+            <div class="date-day">{{ formatDate(record.visitDate) }}</div>
+            <mat-chip [class]="getVisitTypeClass(record.visitType)" class="visit-type-chip">
+              {{ record.visitType | titlecase }}
+            </mat-chip>
+          </div>
+          
+          <div class="record-info">
+            <mat-card-title class="diagnosis-title">{{ record.diagnosis }}</mat-card-title>
+            <mat-card-subtitle class="doctor-info">
+              <mat-icon aria-hidden="false">person</mat-icon>
+              Dr. {{ record.doctorName }}
+            </mat-card-subtitle>
+          </div>
+
+          <div class="record-actions">
+            <mat-icon aria-hidden="false">chevron_right</mat-icon>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content class="record-content">
+          <!-- Symptoms -->
+          <div class="symptoms-section" *ngIf="record.symptoms.length > 0">
+            <h4 class="section-title">
+              <mat-icon aria-hidden="false">sick</mat-icon>
+              Symptoms
+            </h4>
+            <div class="symptoms-list">
+              <mat-chip *ngFor="let symptom of record.symptoms" class="symptom-chip">
+                {{ symptom }}
+              </mat-chip>
+            </div>
+          </div>
+
+          <!-- Treatment -->
+          <div class="treatment-section" *ngIf="record.treatment">
+            <h4 class="section-title">
+              <mat-icon aria-hidden="false">healing</mat-icon>
+              Treatment
+            </h4>
+            <p class="treatment-text">{{ record.treatment }}</p>
+          </div>
+
+          <!-- Prescriptions -->
+          <div class="prescriptions-section" *ngIf="record.prescriptions.length > 0">
+            <h4 class="section-title">
+              <mat-icon aria-hidden="false">medication</mat-icon>
+              Prescriptions ({{ record.prescriptions.length }})
+            </h4>
+            <div class="prescriptions-preview">
+              <span *ngFor="let prescription of record.prescriptions.slice(0, 3); let last = last">
+                {{ prescription.medicationName }}{{ !last ? ', ' : '' }}
+              </span>
+              <span *ngIf="record.prescriptions.length > 3" class="more-count">
+                +{{ record.prescriptions.length - 3 }} more
+              </span>
+            </div>
+          </div>
+
+          <!-- Vital Signs -->
+          <div class="vitals-section" *ngIf="record.vitalSigns">
+            <h4 class="section-title">
+              <mat-icon aria-hidden="false">favorite</mat-icon>
+              Vital Signs
+            </h4>
+            <div class="vitals-grid">
+              <div class="vital-item" *ngIf="record.vitalSigns.bloodPressure">
+                <span class="vital-label">BP:</span>
+                <span class="vital-value">{{ record.vitalSigns.bloodPressure }}</span>
+              </div>
+              <div class="vital-item" *ngIf="record.vitalSigns.heartRate">
+                <span class="vital-label">HR:</span>
+                <span class="vital-value">{{ record.vitalSigns.heartRate }} bpm</span>
+              </div>
+              <div class="vital-item" *ngIf="record.vitalSigns.temperature">
+                <span class="vital-label">Temp:</span>
+                <span class="vital-value">{{ record.vitalSigns.temperature }}°F</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          <div class="attachments-section" *ngIf="record.attachments.length > 0">
+            <h4 class="section-title">
+              <mat-icon aria-hidden="false">attach_file</mat-icon>
+              Attachments ({{ record.attachments.length }})
+            </h4>
+            <div class="attachments-list">
+              <button 
+                *ngFor="let attachment of record.attachments" 
+                mat-button 
+                class="attachment-button"
+                (click)="downloadAttachment(attachment.id); $event.stopPropagation()">
+                <mat-icon aria-hidden="false">description</mat-icon>
+                {{ attachment.fileName }}
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Empty State -->
+    <ng-template #noRecords>
+      <div class="empty-state">
+        <mat-icon aria-hidden="false">description</mat-icon>
+        <h3>No Medical Records Found</h3>
+        <p>No records match your current filter criteria.</p>
+        <button mat-button color="primary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- Pagination -->
+    <mat-paginator 
+      *ngIf="filteredRecords.length > 0"
+      [length]="totalElements"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [pageIndex]="currentPage"
+      (page)="onPageChange($event)"
+      class="records-paginator">
+    </mat-paginator>
+  </div>
+</div>

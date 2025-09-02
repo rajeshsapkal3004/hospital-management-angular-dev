@@ -1,0 +1,21 @@
+<div class="patient-layout">
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav
+      #drawer
+      class="sidenav"
+      fixedInViewport
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false">
+      <app-patient-sidebar (menuItemClicked)="onSidenavClose()"></app-patient-sidebar>
+    </mat-sidenav>
+    
+    <mat-sidenav-content class="main-content">
+      <app-patient-header-component (menuToggle)="onMenuToggle()"></app-patient-header-component>
+      
+      <main class="content-area">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

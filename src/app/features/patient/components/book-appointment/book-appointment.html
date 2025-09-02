@@ -1,0 +1,261 @@
+<div class="book-appointment-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon aria-hidden="false">arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon aria-hidden="false">event_available</mat-icon>
+        Book New Appointment
+      </h1>
+      <p class="page-subtitle">Schedule your consultation with our healthcare professionals</p>
+    </div>
+  </div>
+
+  <!-- Booking Stepper -->
+  <mat-card class="stepper-card">
+    <mat-stepper orientation="horizontal" linear="true" #stepper>
+      
+      <!-- Step 1: Select Specialization -->
+      <mat-step [stepControl]="specializationForm" label="Choose Specialization">
+        <form [formGroup]="specializationForm" class="step-form">
+          <div class="step-header">
+            <mat-icon aria-hidden="false" class="step-icon">medical_services</mat-icon>
+            <h2 class="step-title">Select Medical Specialization</h2>
+            <p class="step-description">Choose the type of medical consultation you need</p>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Medical Specialization</mat-label>
+            <mat-select formControlName="specialization">
+              <mat-option *ngFor="let specialization of specializations" [value]="specialization">
+                {{ specialization }}
+              </mat-option>
+            </mat-select>
+            <mat-icon aria-hidden="false" matPrefix>medical_services</mat-icon>
+            <mat-error *ngIf="specializationForm.get('specialization')?.hasError('required')">
+              Please select a specialization
+            </mat-error>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-raised-button color="primary" 
+                    [disabled]="!canProceedToStep2()" 
+                    matStepperNext>
+              <mat-icon aria-hidden="false">arrow_forward</mat-icon>
+              Next: Choose Doctor
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 2: Select Doctor and Date -->
+      <mat-step [stepControl]="doctorForm" label="Choose Doctor & Date">
+        <form [formGroup]="doctorForm" class="step-form">
+          <div class="step-header">
+            <mat-icon aria-hidden="false" class="step-icon">person</mat-icon>
+            <h2 class="step-title">Select Doctor & Date</h2>
+            <p class="step-description">Choose your preferred doctor and appointment date</p>
+          </div>
+
+          <!-- Loading Doctors -->
+          <div class="loading-section" *ngIf="isLoadingDoctors">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading doctors...</p>
+          </div>
+
+          <!-- Doctors List -->
+          <div class="doctors-section" *ngIf="!isLoadingDoctors && doctors.length > 0">
+            <h3 class="section-title">Available Doctors</h3>
+            <div class="doctors-grid">
+              <mat-card 
+                *ngFor="let doctor of doctors" 
+                class="doctor-card"
+                [class.selected]="doctorForm.get('doctorId')?.value === doctor.id"
+                (click)="doctorForm.patchValue({doctorId: doctor.id})">
+                
+                <mat-card-content class="doctor-content">
+                  <div class="doctor-avatar">
+                    <mat-icon aria-hidden="false">person</mat-icon>
+                  </div>
+                  <div class="doctor-info">
+                    <h4 class="doctor-name">Dr. {{ doctor.firstName }} {{ doctor.lastName }}</h4>
+                    <p class="doctor-specialization">{{ doctor.specialization }}</p>
+                    <p class="doctor-qualification">{{ doctor.qualification }}</p>
+                    <div class="doctor-details">
+                      <span class="doctor-experience">
+                        <mat-icon aria-hidden="false">work</mat-icon>
+                        {{ doctor.experience }} years experience
+                      </span>
+                      <span class="doctor-rating">
+                        {{ getDoctorRating(doctor.rating) }}
+                        ({{ doctor.rating }}/5)
+                      </span>
+                      <span class="doctor-fee">
+                        <mat-icon aria-hidden="false">attach_money</mat-icon>
+                        ${{ doctor.consultationFee }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="selection-indicator" *ngIf="doctorForm.get('doctorId')?.value === doctor.id">
+                    <mat-icon aria-hidden="false">check_circle</mat-icon>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <!-- Date Selection -->
+            <div class="date-selection" *ngIf="doctorForm.get('doctorId')?.value">
+              <h3 class="section-title">Select Appointment Date</h3>
+              <mat-form-field appearance="outline">
+                <mat-label>Appointment Date</mat-label>
+                <input matInput [matDatepicker]="datePicker" formControlName="appointmentDate"
+                       [min]="getMinDate()" [max]="getMaxDate()">
+                <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                <mat-datepicker #datePicker></mat-datepicker>
+                <mat-icon aria-hidden="false" matPrefix>calendar_today</mat-icon>
+                <mat-error *ngIf="doctorForm.get('appointmentDate')?.hasError('required')">
+                  Please select an appointment date
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Loading Slots -->
+            <div class="loading-section" *ngIf="isLoadingSlots">
+              <mat-spinner diameter="30"></mat-spinner>
+              <p>Loading available time slots...</p>
+            </div>
+          </div>
+
+          <!-- No Doctors Found -->
+          <div class="empty-state" *ngIf="!isLoadingDoctors && doctors.length === 0">
+            <mat-icon aria-hidden="false">person_off</mat-icon>
+            <h3>No Doctors Available</h3>
+            <p>No doctors found for the selected specialization.</p>
+          </div>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>
+              <mat-icon aria-hidden="false">arrow_back</mat-icon>
+              Back
+            </button>
+            <button mat-raised-button color="primary" 
+                    [disabled]="!canProceedToStep3()" 
+                    matStepperNext>
+              <mat-icon aria-hidden="false">arrow_forward</mat-icon>
+              Next: Select Time
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 3: Select Time and Details -->
+      <mat-step [stepControl]="appointmentForm" label="Time & Details">
+        <form [formGroup]="appointmentForm" class="step-form">
+          <div class="step-header">
+            <mat-icon aria-hidden="false" class="step-icon">schedule</mat-icon>
+            <h2 class="step-title">Select Time & Appointment Details</h2>
+            <p class="step-description">Choose your preferred time slot and provide appointment details</p>
+          </div>
+
+          <!-- Selected Doctor & Date Summary -->
+          <mat-card class="summary-card" *ngIf="selectedDoctor && selectedDate">
+            <mat-card-content>
+              <h3 class="summary-title">Appointment Summary</h3>
+              <div class="summary-details">
+                <div class="summary-item">
+                  <mat-icon aria-hidden="false">person</mat-icon>
+                  <span>Dr. {{ selectedDoctor.firstName }} {{ selectedDoctor.lastName }}</span>
+                </div>
+                <div class="summary-item">
+                  <mat-icon aria-hidden="false">medical_services</mat-icon>
+                  <span>{{ selectedDoctor.specialization }}</span>
+                </div>
+                <div class="summary-item">
+                  <mat-icon aria-hidden="false">calendar_today</mat-icon>
+                  <span>{{ selectedDate | date:'fullDate' }}</span>
+                </div>
+                <div class="summary-item">
+                  <mat-icon aria-hidden="false">attach_money</mat-icon>
+                  <span>Consultation Fee: ${{ selectedDoctor.consultationFee }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Time Slots -->
+          <div class="time-slots-section" *ngIf="availableSlots.length > 0">
+            <h3 class="section-title">Available Time Slots</h3>
+            <mat-radio-group formControlName="timeSlot" class="time-slots-grid">
+              <mat-radio-button 
+                *ngFor="let slot of availableSlots" 
+                [value]="slot.id"
+                class="time-slot-radio">
+                {{ formatTime(slot.time) }}
+              </mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="appointmentForm.get('timeSlot')?.hasError('required') && appointmentForm.get('timeSlot')?.touched">
+              Please select a time slot
+            </mat-error>
+          </div>
+
+          <!-- No Slots Available -->
+          <div class="empty-state" *ngIf="!isLoadingSlots && availableSlots.length === 0 && selectedDate">
+            <mat-icon aria-hidden="false">schedule</mat-icon>
+            <h3>No Time Slots Available</h3>
+            <p>No available time slots for the selected date. Please try a different date.</p>
+          </div>
+
+          <!-- Appointment Type -->
+          <div class="appointment-type-section">
+            <h3 class="section-title">Appointment Type</h3>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Type of Appointment</mat-label>
+              <mat-select formControlName="appointmentType">
+                <mat-option *ngFor="let type of appointmentTypes" [value]="type.value">
+                  {{ type.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon  aria-hidden="false" matPrefix>category</mat-icon>
+              <mat-error *ngIf="appointmentForm.get('appointmentType')?.hasError('required')">
+                Please select an appointment type
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Reason for Visit -->
+          <div class="reason-section">
+            <h3 class="section-title">Reason for Visit</h3>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Describe your symptoms or reason for visit</mat-label>
+              <textarea matInput formControlName="reason" rows="4" 
+                        placeholder="Please provide details about your symptoms, concerns, or reason for this appointment..."></textarea>
+              <mat-icon aria-hidden="false" matPrefix>description</mat-icon>
+              <mat-error *ngIf="appointmentForm.get('reason')?.hasError('required')">
+                Please provide a reason for your visit
+              </mat-error>
+              <mat-error *ngIf="appointmentForm.get('reason')?.hasError('minlength')">
+                Please provide at least 10 characters
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>
+              <mat-icon aria-hidden="false">arrow_back</mat-icon>
+              Back
+            </button>
+            <button mat-raised-button color="primary" 
+                    [disabled]="!canBookAppointment()" 
+                    (click)="bookAppointment()">
+              <mat-spinner *ngIf="isBooking" diameter="20" class="inline-spinner"></mat-spinner>
+              <mat-icon aria-hidden="false" *ngIf="!isBooking">check</mat-icon>
+              {{ isBooking ? 'Booking...' : 'Book Appointment' }}
+            </button>
+          </div>
+        </form>
+      </mat-step>
+    </mat-stepper>
+  </mat-card>
+</div>

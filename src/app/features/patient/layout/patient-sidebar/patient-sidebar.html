@@ -1,0 +1,77 @@
+<div class="sidebar-container">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <mat-icon  aria-hidden="false" class="logo-icon">local_hospital</mat-icon>
+      <div class="logo-text">
+        <h2>HealthCare</h2>
+        <span>Patient Portal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+    <!-- Main Navigation -->
+    <div class="nav-section">
+      <h3 class="section-title">Main Menu</h3>
+      <mat-nav-list class="nav-list">
+        <mat-list-item
+          *ngFor="let item of mainMenuItems"
+          class="nav-item"
+          [class.active]="isActive(item.route)"
+          (click)="navigateTo(item.route)">
+          
+          <div class="nav-item-content">
+            <div class="nav-item-icon">
+              <mat-icon aria-hidden="false">{{ item.icon }}</mat-icon>
+              <span *ngIf="item.badge" class="nav-badge">{{ item.badge }}</span>
+            </div>
+            <div class="nav-item-text">
+              <span class="nav-title">{{ item.title }}</span>
+              <span class="nav-description">{{ item.description }}</span>
+            </div>
+          </div>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+
+    <mat-divider class="section-divider"></mat-divider>
+
+    <!-- Account Section -->
+    <div class="nav-section">
+      <h3 class="section-title">Account</h3>
+      <mat-nav-list class="nav-list">
+        <mat-list-item
+          *ngFor="let item of accountMenuItems"
+          class="nav-item"
+          [class.active]="isActive(item.route)"
+          (click)="navigateTo(item.route)">
+          
+          <div class="nav-item-content">
+            <div class="nav-item-icon">
+              <mat-icon aria-hidden="false">{{ item.icon }}</mat-icon>
+            </div>
+            <div class="nav-item-text">
+              <span class="nav-title">{{ item.title }}</span>
+              <span class="nav-description">{{ item.description }}</span>
+            </div>
+          </div>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+  </div>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <mat-list-item class="nav-item logout-item" (click)="logout()">
+      <div class="nav-item-content">
+        <div class="nav-item-icon">
+          <mat-icon aria-hidden="false">exit_to_app</mat-icon>
+        </div>
+        <div class="nav-item-text">
+          <span class="nav-title">Logout</span>
+          <span class="nav-description">Sign out of your account</span>
+        </div>
+      </div>
+    </mat-list-item>
+  </div>
+</div>

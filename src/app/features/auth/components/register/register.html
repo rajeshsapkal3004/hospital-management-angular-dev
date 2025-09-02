@@ -1,0 +1,447 @@
+<div class="register-container">
+  <div class="register-wrapper">
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+      <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+        <span>1</span>
+        <label>Basic Info</label>
+      </div>
+      <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+        <span>2</span>
+        <label>Role Details</label>
+      </div>
+      <div class="step" [class.active]="currentStep >= 3">
+        <span>3</span>
+        <label>Complete</label>
+      </div>
+    </div>
+
+    <div class="register-card">
+      <!-- Header -->
+      <div class="register-header">
+        <div class="logo-container">
+          <mat-icon class="logo" aria-hidden="false">local_hospital</mat-icon>
+        </div>
+        <h1 class="title">Create Account</h1>
+        <p class="subtitle">Join our Hospital Management System</p>
+      </div>
+
+      <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="register-form">
+        
+        <!-- Step 1: Basic Information -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="step-header">
+            <h2>Basic Information</h2>
+            <p>Let's start with your basic details</p>
+          </div>
+
+          <!-- Role Selection -->
+          <div class="form-group">
+            <mat-form-field color="primary" appearance="fill" class="full-width">
+              <mat-label>Select Your Role</mat-label>
+              <mat-select formControlName="role" (selectionChange)="onRoleChange($event.value)" panelClass="custom-select-panel">   
+                <mat-option *ngFor="let role of roles" [value]="role">
+                  <span class="role-option">
+                    <mat-icon aria-hidden="false" fontIcon="{{getRoleIcon(role)}}"></mat-icon>
+                    {{ role | titlecase }}
+                  </span>
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="registrationForm.get('role')?.invalid && registrationForm.get('role')?.touched">
+                Role is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Personal Information -->
+          <div class="form-group" *ngIf="selectedRole">
+            <div class="section-header">
+              <h3>Personal Information</h3>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" placeholder="John">
+                <mat-error *ngIf="registrationForm.get('firstName')?.invalid && registrationForm.get('firstName')?.touched">
+                  First name is required (2-50 characters)
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" placeholder="Doe">
+                <mat-error *ngIf="registrationForm.get('lastName')?.invalid && registrationForm.get('lastName')?.touched">
+                  Last name is required (2-50 characters)
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="email" placeholder="john.doe@example.com">
+                <mat-icon aria-hidden="false" matPrefix>email</mat-icon>
+                <mat-error *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched">
+                  Please provide a valid email address
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="phone" placeholder="+1 234 567 8900">
+                <mat-icon aria-hidden="false" matPrefix>phone</mat-icon>
+                <mat-error *ngIf="registrationForm.get('phone')?.invalid && registrationForm.get('phone')?.touched">
+                  Please provide a valid phone number (10-15 digits)
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Username</mat-label>
+                <input matInput formControlName="username" placeholder="johndoe">
+                <mat-hint>3-50 characters, letters, numbers, dots, underscores, hyphens only</mat-hint>
+                <mat-error *ngIf="registrationForm.get('username')?.invalid && registrationForm.get('username')?.touched">
+                  Username is required (3-50 characters, alphanumeric and .-_ only)
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Gender</mat-label>
+                <mat-select formControlName="gender" panelClass="custom-select-panel">
+                  <mat-option value="MALE">Male</mat-option>
+                  <mat-option value="FEMALE">Female</mat-option>
+                  <mat-option value="OTHER">Other</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Address Information -->
+            <div class="section-header">
+              <h3>Address Information</h3>
+            </div>
+            
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Street Address</mat-label>
+              <input matInput formControlName="address" placeholder="123 Main Street, Apt 4B">
+              <mat-icon aria-hidden="false" matPrefix>location_on</mat-icon>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="city" placeholder="New York">
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>State/Province</mat-label>
+                <input matInput formControlName="state" placeholder="NY">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Country</mat-label>
+                <mat-select formControlName="country" panelClass="custom-select-panel">
+                  <mat-option *ngFor="let country of countries" [value]="country.code">
+                    {{ country.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Postal Code</mat-label>
+                <input matInput formControlName="postalCode" placeholder="10001">
+              </mat-form-field>
+            </div>
+
+            <!-- Security Information -->
+            <div class="section-header">
+              <h3>Security Information</h3>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Password</mat-label>
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+                <mat-icon aria-hidden="false" matPrefix>lock</mat-icon>
+                <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility('password')">
+                  <mat-icon aria-hidden="false">{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-hint>Must contain uppercase, lowercase, number, and special character</mat-hint>
+                <mat-error *ngIf="registrationForm.get('password')?.invalid && registrationForm.get('password')?.touched">
+                  Password must be at least 8 characters with uppercase, lowercase, number, and special character
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
+                <mat-icon aria-hidden="false" matPrefix>lock</mat-icon>
+                <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility('confirmPassword')">
+                  <mat-icon aria-hidden="false">{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="registrationForm.hasError('passwordMismatch') && registrationForm.get('confirmPassword')?.touched">
+                  Passwords must match
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Role-Specific Information -->
+        <div class="form-step" *ngIf="currentStep === 2 && selectedRole">
+          <div class="step-header">
+            <h2>{{ selectedRole | titlecase }} Information</h2>
+            <p>Please provide role-specific details</p>
+          </div>
+
+          <!-- Patient Fields -->
+          <div class="form-group patient-form" *ngIf="selectedRole === 'PATIENT'">
+            <!-- Basic Patient Info -->
+            <div class="section-header">
+              <h3>Basic Patient Information</h3>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Date of Birth</mat-label>
+                <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" readonly>
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="dobPicker">
+                  <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+                </mat-datepicker-toggle>
+                <mat-datepicker #dobPicker></mat-datepicker>
+                <mat-error *ngIf="registrationForm.get('dateOfBirth')?.invalid && registrationForm.get('dateOfBirth')?.touched">
+                  Date of birth is required and must be in the past
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Blood Type</mat-label>
+                <mat-select formControlName="bloodType" panelClass="custom-select-panel">
+                  <mat-option *ngFor="let type of bloodTypes" [value]="type">{{ type }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="registrationForm.get('bloodType')?.invalid && registrationForm.get('bloodType')?.touched">
+                  Please select a valid blood type
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Personal Details -->
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Occupation</mat-label>
+                <input matInput formControlName="occupation" placeholder="Your profession" maxlength="100">
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Marital Status</mat-label>
+                <mat-select formControlName="maritalStatus" panelClass="custom-select-panel">
+                  <mat-option value="SINGLE">Single</mat-option>
+                  <mat-option value="MARRIED">Married</mat-option>
+                  <mat-option value="DIVORCED">Divorced</mat-option>
+                  <mat-option value="WIDOWED">Widowed</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Insurance Information -->
+            <div class="section-header">
+              <h3>Insurance Information</h3>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Insurance Provider</mat-label>
+                <input matInput formControlName="insuranceProvider" placeholder="e.g., Blue Cross Blue Shield" maxlength="100">
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Insurance Number</mat-label>
+                <input matInput formControlName="insuranceNumber" placeholder="Policy number" maxlength="30">
+                <mat-error *ngIf="registrationForm.get('insuranceNumber')?.invalid && registrationForm.get('insuranceNumber')?.touched">
+                  Insurance number must be 5-30 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="section-header">
+              <h3>Emergency Contact</h3>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Emergency Contact Name</mat-label>
+                <input matInput formControlName="emergencyContactName" placeholder="Contact person" maxlength="100">
+                <mat-error *ngIf="registrationForm.get('emergencyContactName')?.invalid && registrationForm.get('emergencyContactName')?.touched">
+                  Emergency contact name is required (2-100 characters)
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Emergency Contact Phone</mat-label>
+                <input matInput formControlName="emergencyContactPhone" placeholder="Contact phone">
+                <mat-error *ngIf="registrationForm.get('emergencyContactPhone')?.invalid && registrationForm.get('emergencyContactPhone')?.touched">
+                  Emergency contact phone is required (10-15 digits)
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Relationship to Emergency Contact</mat-label>
+              <input matInput formControlName="emergencyContactRelationship" placeholder="e.g., Spouse, Parent, Sibling" maxlength="50">
+            </mat-form-field>
+
+            <!-- Expandable Medical Info -->
+            <mat-expansion-panel class="medical-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>Medical Information (Optional)</mat-panel-title>
+                <mat-panel-description>
+                  Click to expand and add medical details
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              
+              <!-- Physical Information -->
+              <div class="form-row">
+                <mat-form-field appearance="fill" class="form-field">
+                  <mat-label>Height (cm)</mat-label>
+                  <input matInput type="number" formControlName="heightCm" min="0" max="300" step="0.1">
+                  <mat-error *ngIf="registrationForm.get('heightCm')?.invalid && registrationForm.get('heightCm')?.touched">
+                    Height must be between 0-300 cm
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="fill" class="form-field">
+                  <mat-label>Weight (kg)</mat-label>
+                  <input matInput type="number" formControlName="weightKg" min="0" max="1000" step="0.1">
+                  <mat-error *ngIf="registrationForm.get('weightKg')?.invalid && registrationForm.get('weightKg')?.touched">
+                    Weight must be between 0-1000 kg
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Medical Details -->
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Allergies (comma-separated)</mat-label>
+                <input matInput formControlName="allergies" placeholder="Peanuts, Shellfish, etc.">
+                <mat-hint>Separate multiple allergies with commas</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Medical Conditions (comma-separated)</mat-label>
+                <input matInput formControlName="medicalConditions" placeholder="Diabetes, Hypertension, etc.">
+                <mat-hint>Separate multiple conditions with commas</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Current Medications (comma-separated)</mat-label>
+                <input matInput formControlName="currentMedications" placeholder="Medication names and dosages">
+                <mat-hint>Separate multiple medications with commas</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Medical Notes</mat-label>
+                <textarea matInput formControlName="medicalNotes" rows="3" maxlength="1000" placeholder="Any additional medical information"></textarea>
+                <mat-hint align="end">{{medicalNotesLength}}/1000</mat-hint>
+                <mat-error *ngIf="registrationForm.get('medicalNotes')?.invalid && registrationForm.get('medicalNotes')?.touched">
+                  Medical notes cannot exceed 1000 characters
+                </mat-error>
+              </mat-form-field>
+            </mat-expansion-panel>
+          </div>
+
+          <!-- Doctor Fields -->
+          <div class="form-group doctor-form" *ngIf="selectedRole === 'DOCTOR'">
+            <div class="section-header">
+              <h3>Professional Information</h3>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>License Number</mat-label>
+                <input matInput formControlName="licenseNumber" placeholder="Medical license number">
+                <mat-error *ngIf="registrationForm.get('licenseNumber')?.invalid && registrationForm.get('licenseNumber')?.touched">
+                  License number is required
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Specialization</mat-label>
+                <mat-select formControlName="specialization" panelClass="custom-select-panel">
+                  <mat-option *ngFor="let spec of specializations" [value]="spec">{{ spec }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="registrationForm.get('specialization')?.invalid && registrationForm.get('specialization')?.touched">
+                  Specialization is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Experience (Years)</mat-label>
+                <input matInput type="number" formControlName="experience" min="0" max="60">
+                <mat-error *ngIf="registrationForm.get('experience')?.invalid && registrationForm.get('experience')?.touched">
+                  Experience is required
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="form-field">
+                <mat-label>Consultation Fee ($)</mat-label>
+                <input matInput type="number" formControlName="consultationFee" min="0" step="0.01">
+                <mat-error *ngIf="registrationForm.get('consultationFee')?.invalid && registrationForm.get('consultationFee')?.touched">
+                  Consultation fee is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Qualification</mat-label>
+              <input matInput formControlName="qualification" placeholder="e.g., MD, MBBS, DO">
+              <mat-error *ngIf="registrationForm.get('qualification')?.invalid && registrationForm.get('qualification')?.touched">
+                Qualification is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-actions">
+          <div class="button-group">
+            <button 
+              mat-button 
+              type="button" 
+              *ngIf="currentStep > 1"
+              (click)="previousStep()"
+              class="nav-button prev-button">
+              <mat-icon aria-hidden="false">arrow_back</mat-icon>
+              <span class="button-text">Previous</span>
+            </button>
+
+            <button 
+              mat-raised-button 
+              color="primary"
+              type="button"
+              *ngIf="currentStep < 2"
+              (click)="nextStep()"
+              [disabled]="!canProceed()"
+              class="nav-button next-button">
+              <span class="button-text">Next</span>
+              <mat-icon aria-hidden="false">arrow_forward</mat-icon>
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              *ngIf="currentStep === 2"
+              [disabled]="isLoading || registrationForm.invalid"
+              class="submit-button">
+              <span *ngIf="!isLoading" class="button-content">
+                <mat-icon aria-hidden="false">person_add</mat-icon>
+                <span class="button-text">Create Account</span>
+              </span>
+              <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+            </button>
+          </div>
+
+          <button mat-button type="button" (click)="goToLogin()" class="login-link">
+            Already have an account? Sign In
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>&copy; 2025 Hospital Management System. All rights reserved.</p>
+    </div>
+  </div>
+</div>

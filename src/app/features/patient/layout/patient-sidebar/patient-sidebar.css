@@ -1,0 +1,246 @@
+.sidebar-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+}
+
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #81d4fa;
+}
+
+.logo-text h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.logo-text span {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sidebar-content {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 20px 12px 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.section-divider {
+  margin: 24px 20px;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.nav-list {
+  padding: 0;
+}
+
+.nav-item {
+  margin: 4px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: rgba(255,255,255,0.8);
+  height: auto;
+  min-height: 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: rgba(255,255,255,0.1);
+  transition: width 0.3s ease;
+  border-radius: 12px;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.08);
+  color: white;
+  transform: translateX(4px);
+}
+
+.nav-item:hover::before {
+  width: 4px;
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.nav-item.active::before {
+  width: 4px;
+  background: #81d4fa;
+}
+
+.nav-item-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  width: 100%;
+}
+
+.nav-item-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.nav-item-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: inherit;
+}
+
+.nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff4444;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.nav-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.nav-description {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.2;
+}
+
+.nav-item.active .nav-description {
+  color: rgba(255,255,255,0.8);
+}
+
+.sidebar-footer {
+  padding: 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.1);
+}
+
+.logout-item {
+  color: #ffcdd2;
+  margin: 0 16px;
+}
+
+.logout-item:hover {
+  background: rgba(244, 67, 54, 0.2);
+  color: #ff8a80;
+}
+
+/* Scrollbar Styling */
+.sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Animations */
+.nav-item {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar-header {
+    padding: 16px;
+  }
+  
+  .logo-text h2 {
+    font-size: 18px;
+  }
+  
+  .nav-item-content {
+    padding: 10px 14px;
+  }
+  
+  .nav-description {
+    display: none;
+  }
+}

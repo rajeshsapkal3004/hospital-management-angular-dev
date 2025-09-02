@@ -1,0 +1,267 @@
+<div class="appointments-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon aria-hidden="false">event</mat-icon>
+        My Appointments
+      </h1>
+      <p class="page-subtitle">Manage your healthcare appointments</p>
+    </div>
+    <div class="header-actions">
+      <button mat-fab extended color="primary" [routerLink]="['/patient/appointments/book']">
+        <mat-icon aria-hidden="false">add</mat-icon>
+        Book New Appointment
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your appointments...</p>
+  </div>
+
+  <!-- Appointments Content -->
+  <div class="appointments-content" *ngIf="!isLoading">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="appointments-tabs">
+      
+      <!-- Upcoming Appointments -->
+      <mat-tab label="Upcoming" [disabled]="isLoading">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <div class="tab-header">
+              <h2 class="tab-title">
+                <mat-icon aria-hidden="false">upcoming</mat-icon>
+                Upcoming Appointments
+                <mat-chip class="count-chip">{{ upcomingAppointments.length }}</mat-chip>
+              </h2>
+            </div>
+            
+            <div class="appointments-list" *ngIf="upcomingAppointments.length > 0; else noUpcoming">
+              <mat-card 
+                *ngFor="let appointment of upcomingAppointments" 
+                class="appointment-card upcoming-card"
+                [class.appointment-soon]="isAppointmentSoon(appointment.appointmentDate)">
+                
+                <mat-card-content class="appointment-content">
+                  <div class="appointment-date-section">
+                    <div class="date-badge" [class.urgent]="isAppointmentSoon(appointment.appointmentDate)">
+                      <div class="date-day">{{ formatDate(appointment.appointmentDate).split(',')[0] }}</div>
+                      <div class="date-full">{{ formatDate(appointment.appointmentDate).split(',')[1] }}</div>
+                      <div class="appointment-time">{{ formatTime(appointment.appointmentTime) }}</div>
+                    </div>
+                    <div class="days-until" *ngIf="getDaysUntilAppointment(appointment.appointmentDate) > 0">
+                      <span class="days-count">{{ getDaysUntilAppointment(appointment.appointmentDate) }}</span>
+                      <span class="days-label">days</span>
+                    </div>
+                  </div>
+
+                  <div class="appointment-details">
+                    <div class="appointment-header">
+                      <h3 class="doctor-name">Dr. {{ appointment.doctorName }}</h3>
+                      <div class="appointment-badges">
+                        <mat-chip [class]="getStatusClass(appointment.status)" class="status-chip">
+                          {{ appointment.status | titlecase }}
+                        </mat-chip>
+                        <mat-chip [class]="getTypeClass(appointment.type)" class="type-chip">
+                          {{ appointment.type | titlecase }}
+                        </mat-chip>
+                      </div>
+                    </div>
+                    
+                    <p class="appointment-reason">{{ appointment.reason }}</p>
+                    <p class="appointment-department">
+                      <mat-icon aria-hidden="false">business</mat-icon>
+                      {{ appointment.department }}
+                    </p>
+                    <p class="appointment-specialization">
+                      <mat-icon aria-hidden="false">medical_services</mat-icon>
+                      {{ appointment.doctorSpecialization }}
+                    </p>
+                  </div>
+
+                  <div class="appointment-actions">
+                    <button mat-icon-button [matMenuTriggerFor]="actionMenu" class="action-menu-btn">
+                      <mat-icon aria-hidden="false">more_vert</mat-icon>
+                    </button>
+                    
+                    <mat-menu #actionMenu="matMenu">
+                      <button mat-menu-item [routerLink]="['/patient/appointments', appointment.id]">
+                        <mat-icon aria-hidden="false">visibility</mat-icon>
+                        <span>View Details</span>
+                      </button>
+                      <button 
+                        mat-menu-item 
+                        *ngIf="canRescheduleAppointment(appointment)"
+                        (click)="rescheduleAppointment(appointment)">
+                        <mat-icon aria-hidden="false">schedule</mat-icon>
+                        <span>Reschedule</span>
+                      </button>
+                      <button 
+                        mat-menu-item 
+                        *ngIf="canCancelAppointment(appointment)"
+                        (click)="cancelAppointment(appointment)"
+                        class="cancel-action">
+                        <mat-icon aria-hidden="false">cancel</mat-icon>
+                        <span>Cancel</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <ng-template #noUpcoming>
+              <div class="empty-state">
+                <mat-icon aria-hidden="false">event_available</mat-icon>
+                <h3>No Upcoming Appointments</h3>
+                <p>You don't have any scheduled appointments.</p>
+                <button mat-raised-button color="primary" [routerLink]="['/patient/appointments/book']">
+                  Book an Appointment
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Past Appointments -->
+      <mat-tab label="Past" [disabled]="isLoading">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <div class="tab-header">
+              <h2 class="tab-title">
+                <mat-icon aria-hidden="false">history</mat-icon>
+                Past Appointments
+                <mat-chip class="count-chip">{{ pastAppointments.length }}</mat-chip>
+              </h2>
+            </div>
+            
+            <div class="appointments-list" *ngIf="pastAppointments.length > 0; else noPast">
+              <mat-card 
+                *ngFor="let appointment of pastAppointments" 
+                class="appointment-card past-card">
+                
+                <mat-card-content class="appointment-content">
+                  <div class="appointment-date-section">
+                    <div class="date-badge completed">
+                      <div class="date-day">{{ formatDate(appointment.appointmentDate).split(',')[0] }}</div>
+                      <div class="date-full">{{ formatDate(appointment.appointmentDate).split(',')[1] }}</div>
+                      <div class="appointment-time">{{ formatTime(appointment.appointmentTime) }}</div>
+                    </div>
+                  </div>
+
+                  <div class="appointment-details">
+                    <div class="appointment-header">
+                      <h3 class="doctor-name">Dr. {{ appointment.doctorName }}</h3>
+                      <div class="appointment-badges">
+                        <mat-chip [class]="getStatusClass(appointment.status)" class="status-chip">
+                          {{ appointment.status | titlecase }}
+                        </mat-chip>
+                        <mat-chip [class]="getTypeClass(appointment.type)" class="type-chip">
+                          {{ appointment.type | titlecase }}
+                        </mat-chip>
+                      </div>
+                    </div>
+                    
+                    <p class="appointment-reason">{{ appointment.reason }}</p>
+                    <p class="appointment-department">
+                      <mat-icon aria-hidden="false">business</mat-icon>
+                      {{ appointment.department }}
+                    </p>
+                  </div>
+
+                  <div class="appointment-actions">
+                    <button 
+                      mat-button 
+                      color="primary"
+                      [routerLink]="['/patient/appointments', appointment.id]">
+                      <mat-icon aria-hidden="false">visibility</mat-icon>
+                      View Details
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <ng-template #noPast>
+              <div class="empty-state">
+                <mat-icon aria-hidden="false">history</mat-icon>
+                <h3>No Past Appointments</h3>
+                <p>Your appointment history will appear here.</p>
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Cancelled Appointments -->
+      <mat-tab label="Cancelled" [disabled]="isLoading">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            <div class="tab-header">
+              <h2 class="tab-title">
+                <mat-icon aria-hidden="false">cancel</mat-icon>
+                Cancelled Appointments
+                <mat-chip class="count-chip">{{ cancelledAppointments.length }}</mat-chip>
+              </h2>
+            </div>
+            
+            <div class="appointments-list" *ngIf="cancelledAppointments.length > 0; else noCancelled">
+              <mat-card 
+                *ngFor="let appointment of cancelledAppointments" 
+                class="appointment-card cancelled-card">
+                
+                <mat-card-content class="appointment-content">
+                  <div class="appointment-date-section">
+                    <div class="date-badge cancelled">
+                      <div class="date-day">{{ formatDate(appointment.appointmentDate).split(',')[0] }}</div>
+                      <div class="date-full">{{ formatDate(appointment.appointmentDate).split(',')[1] }}</div>
+                      <div class="appointment-time">{{ formatTime(appointment.appointmentTime) }}</div>
+                    </div>
+                  </div>
+
+                  <div class="appointment-details">
+                    <div class="appointment-header">
+                      <h3 class="doctor-name">Dr. {{ appointment.doctorName }}</h3>
+                      <div class="appointment-badges">
+                        <mat-chip [class]="getStatusClass(appointment.status)" class="status-chip">
+                          {{ appointment.status | titlecase }}
+                        </mat-chip>
+                        <mat-chip [class]="getTypeClass(appointment.type)" class="type-chip">
+                          {{ appointment.type | titlecase }}
+                        </mat-chip>
+                      </div>
+                    </div>
+                    
+                    <p class="appointment-reason">{{ appointment.reason }}</p>
+                    <p class="appointment-department">
+                      <mat-icon aria-hidden="false">business</mat-icon>
+                      {{ appointment.department }}
+                    </p>
+                  </div>
+
+                  <div class="appointment-actions">
+                    <button mat-button [routerLink]="['/patient/appointments/book']">
+                      <mat-icon aria-hidden="false">add</mat-icon>
+                      Rebook
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <ng-template #noCancelled>
+              <div class="empty-state">
+                <mat-icon aria-hidden="false">event_busy</mat-icon>
+                <h3>No Cancelled Appointments</h3>
+                <p>You haven't cancelled any appointments.</p>
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

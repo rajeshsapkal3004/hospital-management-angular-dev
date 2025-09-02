@@ -1,0 +1,250 @@
+<div class="medical-record-detail">
+  <!-- Header -->
+  <div class="detail-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon aria-hidden="false">arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1 class="page-title">Medical Record Details</h1>
+      <p class="page-subtitle" *ngIf="medicalRecord">
+        {{ formatDate(medicalRecord.visitDate) }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading medical record...</p>
+  </div>
+
+  <!-- Record Details -->
+  <div class="record-details" *ngIf="!isLoading && medicalRecord">
+    <!-- Basic Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">info</mat-icon>
+          Basic Information
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Date of Visit</span>
+            <span class="info-value">{{ formatDate(medicalRecord.visitDate) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Doctor</span>
+            <span class="info-value">Dr. {{ medicalRecord.doctorName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Visit Type</span>
+            <mat-chip [class]="getVisitTypeClass(medicalRecord.visitType)" class="visit-chip">
+              {{ medicalRecord.visitType | titlecase }}
+            </mat-chip>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Diagnosis</span>
+            <span class="info-value diagnosis-text">{{ medicalRecord.diagnosis }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Symptoms -->
+    <mat-card class="symptoms-card" *ngIf="medicalRecord.symptoms.length > 0">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">sick</mat-icon>
+          Symptoms
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="symptoms-container">
+          <mat-chip *ngFor="let symptom of medicalRecord.symptoms" class="symptom-chip">
+            {{ symptom }}
+          </mat-chip>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Treatment -->
+    <mat-card class="treatment-card" *ngIf="medicalRecord.treatment">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">healing</mat-icon>
+          Treatment Plan
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="treatment-content">
+          <p class="treatment-text">{{ medicalRecord.treatment }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Vital Signs -->
+    <mat-card class="vitals-card" *ngIf="medicalRecord.vitalSigns">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">favorite</mat-icon>
+          Vital Signs
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="vitals-grid">
+          <div class="vital-item" *ngIf="medicalRecord.vitalSigns.bloodPressure">
+            <div class="vital-icon">
+              <mat-icon aria-hidden="false">monitor_heart</mat-icon>
+            </div>
+            <div class="vital-info">
+              <span class="vital-label">Blood Pressure</span>
+              <span class="vital-value">{{ medicalRecord.vitalSigns.bloodPressure }}</span>
+            </div>
+          </div>
+          
+          <div class="vital-item" *ngIf="medicalRecord.vitalSigns.heartRate">
+            <div class="vital-icon">
+              <mat-icon aria-hidden="false">favorite</mat-icon>
+            </div>
+            <div class="vital-info">
+              <span class="vital-label">Heart Rate</span>
+              <span class="vital-value">{{ medicalRecord.vitalSigns.heartRate }} bpm</span>
+            </div>
+          </div>
+          
+          <div class="vital-item" *ngIf="medicalRecord.vitalSigns.temperature">
+            <div class="vital-icon">
+              <mat-icon aria-hidden="false">device_thermostat</mat-icon>
+            </div>
+            <div class="vital-info">
+              <span class="vital-label">Temperature</span>
+              <span class="vital-value">{{ medicalRecord.vitalSigns.temperature }}°F</span>
+            </div>
+          </div>
+          
+          <div class="vital-item" *ngIf="medicalRecord.vitalSigns.weight">
+            <div class="vital-icon">
+              <mat-icon aria-hidden="false">fitness_center</mat-icon>
+            </div>
+            <div class="vital-info">
+              <span class="vital-label">Weight</span>
+              <span class="vital-value">{{ medicalRecord.vitalSigns.weight }} kg</span>
+            </div>
+          </div>
+          
+          <div class="vital-item" *ngIf="medicalRecord.vitalSigns.height">
+            <div class="vital-icon">
+              <mat-icon aria-hidden="false">height</mat-icon>
+            </div>
+            <div class="vital-info">
+              <span class="vital-label">Height</span>
+              <span class="vital-value">{{ medicalRecord.vitalSigns.height }} cm</span>
+            </div>
+          </div>
+          
+          <div class="vital-item" *ngIf="medicalRecord.vitalSigns.oxygenSaturation">
+            <div class="vital-icon">
+              <mat-icon aria-hidden="false">air</mat-icon>
+            </div>
+            <div class="vital-info">
+              <span class="vital-label">Oxygen Saturation</span>
+              <span class="vital-value">{{ medicalRecord.vitalSigns.oxygenSaturation }}%</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Prescriptions -->
+    <mat-card class="prescriptions-card" *ngIf="medicalRecord.prescriptions.length > 0">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">medication</mat-icon>
+          Prescriptions
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="medicalRecord.prescriptions" class="prescriptions-table">
+          <ng-container matColumnDef="medication">
+            <th mat-header-cell *matHeaderCellDef>Medication</th>
+            <td mat-cell *matCellDef="let prescription">{{ prescription.medicationName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dosage">
+            <th mat-header-cell *matHeaderCellDef>Dosage</th>
+            <td mat-cell *matCellDef="let prescription">{{ prescription.dosage }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="frequency">
+            <th mat-header-cell *matHeaderCellDef>Frequency</th>
+            <td mat-cell *matCellDef="let prescription">{{ prescription.frequency }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="duration">
+            <th mat-header-cell *matHeaderCellDef>Duration</th>
+            <td mat-cell *matCellDef="let prescription">{{ prescription.duration }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="instructions">
+            <th mat-header-cell *matHeaderCellDef>Instructions</th>
+            <td mat-cell *matCellDef="let prescription">{{ prescription.instructions }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="prescriptionColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: prescriptionColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Notes -->
+    <mat-card class="notes-card" *ngIf="medicalRecord.notes">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">note</mat-icon>
+          Doctor's Notes
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="notes-content">
+          <p class="notes-text">{{ medicalRecord.notes }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Attachments -->
+    <mat-card class="attachments-card" *ngIf="medicalRecord.attachments.length > 0">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon aria-hidden="false">attach_file</mat-icon>
+          Attachments
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="attachments-grid">
+          <div 
+            *ngFor="let attachment of medicalRecord.attachments" 
+            class="attachment-item"
+            (click)="downloadAttachment(attachment.id, attachment.fileName)">
+            <div class="attachment-icon">
+              <mat-icon aria-hidden="false">description</mat-icon>
+            </div>
+            <div class="attachment-info">
+              <span class="attachment-name">{{ attachment.fileName }}</span>
+              <span class="attachment-details">
+                {{ attachment.fileType }} • {{ (attachment.fileSize / 1024 / 1024).toFixed(2) }} MB
+              </span>
+              <span class="attachment-date">
+                Uploaded: {{ formatDate(attachment.uploadDate) }}
+              </span>
+            </div>
+            <div class="attachment-action">
+              <mat-icon aria-hidden="false">download</mat-icon>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="sidebar-container">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <mat-icon aria-hidden="false" class="logo-icon">local_hospital</mat-icon>
+      <span class="logo-text">HMS Admin</span>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+    <mat-nav-list class="nav-list">
+      <mat-list-item
+        *ngFor="let item of menuItems"
+        class="nav-item"
+        [class.active]="isActive(item.route)"
+        (click)="navigateTo(item.route)">
+        
+        <div class="nav-item-content">
+          <mat-icon aria-hidden="false" class="nav-icon">{{ item.icon }}</mat-icon>
+          <span class="nav-title">{{ item.title }}</span>
+          <span *ngIf="item.badge" class="nav-badge">{{ item.badge }}</span>
+        </div>
+      </mat-list-item>
+    </mat-nav-list>
+  </div>
+
+  <div class="sidebar-footer">
+    <mat-list-item class="nav-item logout-item" (click)="logout()">
+      <div class="nav-item-content">
+        <mat-icon aria-hidden="false" class="nav-icon">exit_to_app</mat-icon>
+        <span class="nav-title">Logout</span>
+      </div>
+    </mat-list-item>
+  </div>
+</div>

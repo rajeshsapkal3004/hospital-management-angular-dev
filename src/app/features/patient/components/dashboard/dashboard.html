@@ -1,0 +1,207 @@
+<div class="patient-dashboard">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <h1 class="welcome-title">{{ getUserWelcomeMessage() }}</h1>
+      <p class="welcome-subtitle">Here's an overview of your health information</p>
+      <div class="patient-info" *ngIf="currentPatient">
+        <mat-chip class="patient-chip">
+          <mat-icon aria-hidden="false">badge</mat-icon>
+          {{ currentPatient.patientNumber }}
+        </mat-chip>
+      </div>
+    </div>
+    <div class="welcome-actions">
+      <button mat-fab extended color="primary" [routerLink]="['/patient/appointments/book']">
+        <mat-icon aria-hidden="false">add</mat-icon>
+        Book Appointment
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your dashboard...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-content" *ngIf="!isLoading">
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <mat-card class="stat-card appointments-card">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon aria-hidden="false" class="stat-icon">event</mat-icon>
+            <span class="stat-label">Total Appointments</span>
+          </div>
+          <div class="stat-value">{{ dashboardStats?.totalAppointments || 0 }}</div>
+          <div class="stat-detail">
+            <span class="upcoming">{{ dashboardStats?.upcomingAppointments || 0 }} upcoming</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card records-card">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon  aria-hidden="false" class="stat-icon">description</mat-icon>
+            <span class="stat-label">Medical Records</span>
+          </div>
+          <div class="stat-value">
+            {{ dashboardStats?.totalMedicalRecords || 0 }}
+          </div>
+          <div class="stat-detail">
+            <ng-container *ngIf="dashboardStats?.lastVisitDate as lastVisit">
+              <span class="last-visit">
+                Last visit: {{ formatDate(lastVisit) }}
+              </span>
+            </ng-container>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+
+      <mat-card class="stat-card prescriptions-card">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon aria-hidden="false" class="stat-icon">medication</mat-icon>
+            <span class="stat-label">Active Prescriptions</span>
+          </div>
+          <div class="stat-value">{{ dashboardStats?.activePrescriptions || 0 }}</div>
+          <div class="stat-detail">
+            <span class="active">Currently prescribed</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card next-appointment-card" *ngIf="dashboardStats?.nextAppointmentDate as nextDate">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon aria-hidden="false" class="stat-icon">schedule</mat-icon>
+            <span class="stat-label">Next Appointment</span>
+          </div>
+          <div class="stat-value next-date">
+            {{ formatDate(nextDate) }}
+          </div>
+          <div class="stat-detail">
+            <span class="upcoming">Don't forget!</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Quick Actions -->
+      <mat-card class="section-card quick-actions-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon aria-hidden="false">flash_on</mat-icon>
+            Quick Actions
+          </mat-card-title>
+          <mat-card-subtitle>Common tasks and shortcuts</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="quick-actions-grid">
+            <div *ngFor="let action of quickActions" class="quick-action-item" [routerLink]="action.route">
+              <div class="action-icon" [style.background-color]="action.color">
+                <mat-icon aria-hidden="false">{{ action.icon }}</mat-icon>
+              </div>
+              <div class="action-content">
+                <h4 class="action-title">{{ action.title }}</h4>
+                <p class="action-description">{{ action.description }}</p>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Upcoming Appointments -->
+      <mat-card class="section-card appointments-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon aria-hidden="false">upcoming</mat-icon>
+            Upcoming Appointments
+          </mat-card-title>
+          <mat-card-subtitle>Your scheduled consultations</mat-card-subtitle>
+          <button mat-button [routerLink]="['/patient/appointments']" class="view-all-btn">
+            View All
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="appointments-list" *ngIf="upcomingAppointments.length > 0; else noAppointments">
+            <div *ngFor="let appointment of upcomingAppointments" class="appointment-item"
+              [routerLink]="['/patient/appointments', appointment.id]">
+              <div class="appointment-date">
+                <div class="date-day">{{ formatDate(appointment.appointmentDate).split(',')[0] }}</div>
+                <div class="date-full">{{ formatDate(appointment.appointmentDate) }}</div>
+                <div class="appointment-time">{{ formatTime(appointment.appointmentTime) }}</div>
+              </div>
+              <div class="appointment-details">
+                <h4 class="doctor-name">Dr. {{ appointment.doctorName }}</h4>
+                <p class="appointment-reason">{{ appointment.reason }}</p>
+                <p class="appointment-type">{{ appointment.type | titlecase }}</p>
+                <mat-chip [class]="getAppointmentStatusClass(appointment.status)" class="status-chip">
+                  {{ appointment.status | titlecase }}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+          <ng-template #noAppointments>
+            <div class="empty-state">
+              <mat-icon aria-hidden="false">event_busy</mat-icon>
+              <p>No upcoming appointments</p>
+              <button mat-button color="primary" [routerLink]="['/patient/appointments/book']">
+                Book an Appointment
+              </button>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Recent Medical Records -->
+      <mat-card class="section-card medical-records-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon aria-hidden="false">history</mat-icon>
+            Recent Medical Records
+          </mat-card-title>
+          <mat-card-subtitle>Your latest health records</mat-card-subtitle>
+          <button mat-button [routerLink]="['/patient/medical-records']" class="view-all-btn">
+            View All
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="medical-records-list" *ngIf="recentMedicalRecords.length > 0; else noRecords">
+            <div *ngFor="let record of recentMedicalRecords" class="medical-record-item"
+              [routerLink]="['/patient/medical-records', record.id]">
+              <div class="record-date">
+                <div class="date-badge">
+                  {{ formatDate(record.visitDate) }}
+                </div>
+              </div>
+              <div class="record-details">
+                <h4 class="record-diagnosis">{{ record.diagnosis }}</h4>
+                <p class="record-doctor">Dr. {{ record.doctorName }}</p>
+                <mat-chip [class]="getVisitTypeClass(record.visitType)" class="visit-type-chip">
+                  {{ record.visitType | titlecase }}
+                </mat-chip>
+              </div>
+              <div class="record-actions">
+                <mat-icon aria-hidden="false">chevron_right</mat-icon>
+              </div>
+            </div>
+          </div>
+          <ng-template #noRecords>
+            <div class="empty-state">
+              <mat-icon aria-hidden="false">description</mat-icon>
+              <p>No medical records available</p>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

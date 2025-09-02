@@ -1,0 +1,65 @@
+.patient-layout {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 280px;
+  background: linear-gradient(180deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f8fafc;
+}
+
+.content-area {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidenav {
+    width: 240px;
+  }
+  
+  .content-area {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-area {
+    padding: 12px;
+  }
+}
+
+/* Custom scrollbar */
+.content-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.content-area::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

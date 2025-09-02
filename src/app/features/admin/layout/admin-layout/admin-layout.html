@@ -1,0 +1,21 @@
+<div class="admin-container">
+  <mat-sidenav-container class="sidenav-container" autosize>
+    <mat-sidenav
+      #drawer
+      class="sidenav"
+      fixedInViewport
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false">
+      <app-sidebar (menuItemClicked)="closeSidenav()"></app-sidebar>
+    </mat-sidenav>
+    
+    <mat-sidenav-content class="main-content">
+      <app-header (menuToggle)="drawer.toggle()"></app-header>
+      
+      <main class="content-area">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

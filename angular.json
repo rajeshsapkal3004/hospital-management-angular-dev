@@ -28,6 +28,7 @@
               }
             ],
             "styles": [
+              "node_modules/material-icons/iconfont/material-icons.css",
               "src/styles.css"
             ]
           },
@@ -36,13 +37,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "600kB",
                   "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "30kb",
+                  "maximumError": "40kb"
                 }
               ],
               "outputHashing": "all"

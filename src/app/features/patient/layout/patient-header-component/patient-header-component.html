@@ -1,0 +1,77 @@
+<mat-toolbar class="patient-header" color="primary">
+  <button
+    mat-icon-button
+    (click)="toggleMenu()"
+    class="menu-button">
+    <mat-icon aria-hidden="false">menu</mat-icon>
+  </button>
+
+  <div class="header-title">
+    <h1>Patient Portal</h1>
+    <span class="patient-id" *ngIf="currentPatient">ID: {{ getPatientNumber() }}</span>
+  </div>
+  
+  <span class="spacer"></span>
+  
+  <!-- Quick Actions -->
+  <button mat-icon-button class="action-button" [routerLink]="['/patient/appointments/book']" title="Book Appointment">
+    <mat-icon aria-hidden="false">event</mat-icon>
+  </button>
+  
+  <button mat-icon-button class="action-button" title="Notifications">
+    <mat-icon aria-hidden="false" matBadge="3" matBadgeColor="warn">notifications</mat-icon>
+  </button>
+
+  <button mat-icon-button class="action-button" title="Messages">
+    <mat-icon aria-hidden="false" matBadge="2" matBadgeColor="accent">message</mat-icon>
+  </button>
+  
+  <!-- User Menu -->
+  <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+    <div class="user-avatar">
+      {{ getUserInitials() }}
+    </div>
+    <div class="user-info">
+      <span class="user-name">{{ getUserDisplayName() }}</span>
+      <mat-chip class="role-chip">Patient</mat-chip>
+    </div>
+    <mat-icon aria-hidden="false">arrow_drop_down</mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-menu #userMenu="matMenu" class="user-menu">
+  <div class="user-menu-header">
+    <div class="user-avatar-large">
+      {{ getUserInitials() }}
+    </div>
+    <div class="user-details">
+      <div class="user-name-large">{{ getUserDisplayName() }}</div>
+      <div class="user-email">{{ currentUser?.email }}</div>
+      <div class="patient-info" *ngIf="currentPatient">
+        <small>Patient ID: {{ getPatientNumber() }}</small>
+      </div>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="navigateToProfile()">
+    <mat-icon aria-hidden="false">person</mat-icon>
+    <span>My Profile</span>
+  </button>
+  <button mat-menu-item [routerLink]="['/patient/appointments']">
+    <mat-icon aria-hidden="false">event</mat-icon>
+    <span>My Appointments</span>
+  </button>
+  <button mat-menu-item [routerLink]="['/patient/medical-records']">
+    <mat-icon aria-hidden="false">description</mat-icon>
+    <span>Medical Records</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon aria-hidden="false">settings</mat-icon>
+    <span>Settings</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="logout()" class="logout-item">
+    <mat-icon aria-hidden="false">exit_to_app</mat-icon>
+    <span>Logout</span>
+  </button>
+</mat-menu>

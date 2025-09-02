@@ -1,0 +1,51 @@
+<mat-toolbar class="header-toolbar">
+  <button mat-icon-button (click)="toggleMenu()" class="menu-button">
+    <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home"></mat-icon>
+  </button>
+
+  <span class="header-title">Hospital Management System</span>
+
+  <span class="spacer"></span>
+
+  <!-- Notifications -->
+  <button mat-icon-button class="notification-button">
+    <mat-icon aria-hidden="false" fontIcon="notifications"></mat-icon>
+  </button>
+
+  <!-- User Menu -->
+  <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+    <div class="user-avatar">
+      {{ getUserInitials() }}
+    </div>
+    <span class="user-name">{{ getUserDisplayName() }}</span>
+    <mat-icon aria-hidden="false" fontIcon="arrow_drop_down"></mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-menu #userMenu="matMenu" class="user-menu">
+  <div class="user-info">
+    <div class="user-avatar-large">
+      {{ getUserInitials() }}
+    </div>
+    <div class="user-details">
+      <div class="user-name-large">{{ getUserDisplayName() }}</div>
+      <div class="user-email">{{ currentUser?.email }}</div>
+      <mat-chip class="role-chip">{{ currentUser?.role }}</mat-chip>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="navigateToProfile()">
+    <mat-icon aria-hidden="false" fontIcon="person"></mat-icon>
+    <span>Profile</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item>
+    <mat-icon aria-hidden="false" fontIcon="settings"></mat-icon>
+    <span>Settings</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="logout()" class="logout-item">
+   <mat-icon aria-hidden="false" fontIcon="exit_to_app"></mat-icon>
+    <span>Logout</span>
+  </button>
+</mat-menu>
